@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- 故意写 index,follow：部署层会把镜像口改成 noindex，
+     这个页面就是用来验证"换宿主后索引策略依然生效"这条链路的 -->
+<meta name="robots" content="noindex">
+<title>静态出口自检 · T-Matrix</title>
+<meta name="description" content="T-Matrix 部署管线的静态托管出口自检页，用来确认推送、发布、域名与索引四段都通。">
+<style>
+  :root{color-scheme:light}
+  *{box-sizing:border-box}
+  body{margin:0;padding:64px 20px;background:#fbfbfa;color:#1c1c1a;
+       font:400 15px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+  main{max-width:660px;margin:0 auto}
+  .tag{display:inline-block;padding:3px 10px;border-radius:999px;background:#eef2ff;color:#3b4bb3;
+       font-size:12px;letter-spacing:.04em}
+  h1{margin:16px 0 8px;font-size:27px;line-height:1.35;letter-spacing:-.01em}
+  .lead{margin:0 0 32px;color:#5b5b57}
+  h2{margin:36px 0 10px;font-size:15px;letter-spacing:.02em;color:#3d3d3a}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:9px 0;border-bottom:1px solid #e8e8e4;text-align:left;vertical-align:top}
+  th{width:104px;font-weight:500;color:#6b6b66}
+  code{padding:1px 5px;border-radius:4px;background:#f0f0ec;font-size:12.5px}
+  ul{margin:0;padding-left:22px;color:#4a4a46}
+  li{margin:6px 0}
+  footer{margin:56px auto 0;padding-top:22px;border-top:1px solid #e8e8e4;
+         font-size:12px;color:#8a8a84}
+  footer a{color:#6b6b66;text-decoration:none;border-bottom:1px solid #d8d8d2}
+  footer a:hover{color:#1c1c1a}
+</style>
+</head>
+<body>
+<main>
+  <span class="tag">出口自检</span>
+  <h1>静态出口自检</h1>
+  <p class="lead">这一页只干一件事：证明部署管线把文件推到一个静态宿主之后，页面、样式、404、索引策略四样都对。同一个目录可以推到任意一个出口，验完就删。</p>
+
+  <h2>四段链路</h2>
+  <table>
+    <tr><th>推送</th><td>整站覆盖，不做增量合并 —— 宿主上不该有本地已经删掉的文件</td></tr>
+    <tr><th>发布</th><td>构建/发布状态落到 ready 或 built 才算成功，进程退出码不算</td></tr>
+    <tr><th>域名</th><td>默认域名能用，且和清单里登记的地址一致</td></tr>
+    <tr><th>索引</th><td>本页标了 <code>index,follow</code>，部署层应换成 <code>noindex</code> —— 页面上看不到，要看源码</td></tr>
+  </table>
+
+  <h2>为什么这一页是 noindex</h2>
+  <p>它是自检页，不该进搜索。更要紧的是：以后任何一个站从别的宿主搬过来，第一个坑都是「旧地址还在被收录、新地址 canonical 又指回旧地址」。索引策略必须跟着内容走，所以这条链路上 noindex 是硬要求，不是可选项。</p>
+
+  <h2>各宿主的脾气</h2>
+  <ul>
+    <li><b>Cloudflare</b> —— 不解析 <code>_headers</code>（直传通道当普通文件发），改响应头指望不上</li>
+    <li><b>GitHub Pages</b> —— 完全改不了响应头；必须带 <code>.nojekyll</code>，否则下划线开头的文件被 Jekyll 吃掉；仓库名若等于 <code>&lt;用户名&gt;.github.io</code> 才拿得到根域</li>
+    <li><b>Netlify</b> —— 认 <code>_headers</code>；团队开了 SSO/密码保护的话，新建站点会<b>默认继承</b>，得单独关掉才是公开的</li>
+  </ul>
+
+  <h2>一个通用坑</h2>
+  <p>仓库/站点名会直接变成域名的一段。名字起错不会报错，只会得到一个又长又难看的地址，而 canonical 一旦跟着写下去，改起来就是一次全站重定向。</p>
+
+  <footer>
+    友情链接：
+    <a href="https://diduu.com/">嘀嘟博客</a> ·
+    <a href="https://tools.diduu.com/">工具小站</a> ·
+    <a href="https://vps.diduu.com/">云服务器选购笔记</a>
+  </footer>
+</main>
+</body>
+</html>
